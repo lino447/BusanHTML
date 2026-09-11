@@ -400,6 +400,22 @@ var miffyIcon = L.icon({
   className: 'miffy-icon'
 });
 
+var allMarkers = {};
+
+function getMarkersDict(dayId) {
+  if (!allMarkers[dayId]) allMarkers[dayId] = {};
+  return allMarkers[dayId];
+}
+
+function focusPin(dayId, name) {
+  var markers = getMarkersDict(dayId);
+  var marker = markers[name];
+  if (!marker || !fixedMap) return;
+  fixedMap.invalidateSize();
+  fixedMap.setView(marker.getLatLng(), 17);
+  setTimeout(function() { marker.openPopup(); }, 300);
+}
+
 function initFixedMap() {
   if (fixedMapInited) return;
   fixedMapInited = true;
@@ -421,6 +437,12 @@ function loadDayMap(dayId) {
   if (!d) return;
   fixedMap.setView(d.center, d.zoom);
   if (d.kml) {
+    var markersDict = getMarkersDict(dayId);
+    // reset markers for this day
+    Object.keys(markersDict).forEach(function(k) { delete markersDict[k]; });
+    var containerId = dayId + '-kml-spots';
+    var container = document.getElementById(containerId);
+    if (container) container.innerHTML = '<div style="font-size:12px;color:#9ca3af;padding:8px 0;">載入中...</div>';
     var customLayer = L.geoJson(null, {
       pointToLayer: function(feature, latlng) {
         return L.marker(latlng, { icon: miffyIcon });
@@ -430,12 +452,40 @@ function loadDayMap(dayId) {
         var desc = feature.properties && feature.properties.description;
         if (name) {
           layer.bindPopup('<div style="font-size:13px;font-weight:600;color:#1a5276;">' + name + (desc ? '<br><span style="font-size:11px;color:#6b7280;">' + desc + '</span>' : '') + '</div>');
+          markersDict[name] = layer;
         }
         currentDayMarkers.push(layer);
       }
     });
+    var currentDayId = dayId;
     omnivore.kml(d.kml, null, customLayer).on('ready', function() {
       if (customLayer.getBounds().isValid()) fixedMap.fitBounds(customLayer.getBounds());
+      if (container) {
+        var html = '';
+        Object.keys(markersDict).forEach(function(name) {
+          var layer = markersDict[name];
+          var props = layer.feature && layer.feature.properties;
+          var desc = props && props.description ? props.description : '';
+          var safeName = name.replace(/"/g, '&quot;');
+          html += '<div class="stop kml-spot-card" data-name="' + safeName + '" data-day="' + currentDayId + '" style="cursor:pointer;">' +
+            '<div class="stop-card" style="transition:border-color 0.15s;">' +
+            '<div class="stop-name">' + name + '</div>' +
+            (desc ? '<div class="stop-desc" style="margin-top:4px;">' + desc + '</div>' : '') +
+            '</div></div>';
+        });
+        container.innerHTML = html || '<div style="font-size:12px;color:#9ca3af;padding:8px 0;">無景點資料</div>';
+        container.querySelectorAll('.kml-spot-card').forEach(function(el) {
+          el.addEventListener('click', function() {
+            focusPin(this.getAttribute('data-day'), this.getAttribute('data-name'));
+          });
+          el.addEventListener('mouseover', function() {
+            this.querySelector('.stop-card').style.borderColor = '#2e86ab';
+          });
+          el.addEventListener('mouseout', function() {
+            this.querySelector('.stop-card').style.borderColor = '#e5e7eb';
+          });
+        });
+      }
     }).addTo(fixedMap);
     currentDayMarkers.push(customLayer);
   } else {
