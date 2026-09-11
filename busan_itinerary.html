@@ -373,13 +373,13 @@ var daySpots = {
     kml: 'https://www.google.com/maps/d/kml?mid=15DFptaFp3l-ORjdOSQxE15S2i4CHrVA&lid=JlKRadxrnHA&forcekml=1&t=' + Date.now() }
 };
 
-var miffyIcon = L.icon({
-  iconUrl: 'https://raw.githubusercontent.com/lino447/BusanHTML/main/meme/miffy.png',
-  iconSize: [48, 48],
-  iconAnchor: [18, 36],
-  popupAnchor: [0, -36],
-  className: 'miffy-icon'
-});
+var dayIcons = {
+  'd1': L.icon({ iconUrl: 'https://raw.githubusercontent.com/lino447/BusanHTML/main/meme/dan.png', iconSize: [48, 48], iconAnchor: [24, 48], popupAnchor: [0, -48], className: 'miffy-icon' }),
+  'd2': L.icon({ iconUrl: 'https://raw.githubusercontent.com/lino447/BusanHTML/main/meme/miffy.png', iconSize: [48, 48], iconAnchor: [24, 48], popupAnchor: [0, -48], className: 'miffy-icon' }),
+  'd3': L.icon({ iconUrl: 'https://raw.githubusercontent.com/lino447/BusanHTML/main/meme/boris.png', iconSize: [48, 48], iconAnchor: [24, 48], popupAnchor: [0, -48], className: 'miffy-icon' }),
+  'd4': L.icon({ iconUrl: 'https://raw.githubusercontent.com/lino447/BusanHTML/main/meme/melanie.png', iconSize: [48, 48], iconAnchor: [24, 48], popupAnchor: [0, -48], className: 'miffy-icon' })
+};
+var miffyIcon = dayIcons['d1'];
 
 var allMarkers = {};
 
@@ -427,7 +427,7 @@ function loadDayMap(dayId) {
     if (container) container.innerHTML = '<div style="font-size:12px;color:#9ca3af;padding:8px 0;">載入中...</div>';
     var customLayer = L.geoJson(null, {
       pointToLayer: function(feature, latlng) {
-        return L.marker(latlng, { icon: miffyIcon });
+        return L.marker(latlng, { icon: dayIcons[currentDayId] || miffyIcon });
       },
       onEachFeature: function(feature, layer) {
         var name = feature.properties && feature.properties.name;
@@ -472,7 +472,7 @@ function loadDayMap(dayId) {
     currentDayMarkers.push(customLayer);
   } else {
     d.spots.forEach(function(spot) {
-      var m = L.marker([spot.lat, spot.lng], { icon: miffyIcon })
+      var m = L.marker([spot.lat, spot.lng], { icon: dayIcons[dayId] || miffyIcon })
         .addTo(fixedMap)
         .bindPopup('<div style="font-size:13px;font-weight:600;color:#1a5276;">' + spot.name + '</div>');
       currentDayMarkers.push(m);
