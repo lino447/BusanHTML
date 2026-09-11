@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>釜山旅遊行程 9/23–9/27</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@mapbox/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; }
@@ -19,6 +22,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .tabs::-webkit-scrollbar { display: none; }
 .tab { flex: none; padding: 6px 14px; font-size: 13px; font-weight: 500; color: #6b7280; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
 .tab.active { background: #fff; color: #111827; box-shadow: 0 1px 3px rgba(0,0,0,0.12); font-weight: 600; }
+.map-fixed { position: sticky; top: 52px; z-index: 10; background: #f0f2f5; padding: 10px 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.map-fixed #leaflet-map-fixed { width: 100%; height: 220px; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; }
 .content { padding: 1rem; }
 .day-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .day-badge { background: #2e86ab; color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; white-space: nowrap; }
@@ -48,6 +53,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .tip-text { font-size: 12px; color: #1e6fa8; line-height: 1.6; }
 .note-box { background: #fefce8; border: 1px solid #fde68a; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
 .note-text { font-size: 12px; color: #92400e; line-height: 1.6; }
+.map-toggle-btn { width:100%; display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:10px 14px; cursor:pointer; margin-bottom:10px; }
+.map-toggle-left { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; color:#111827; }
+.map-toggle-arr { font-size:12px; color:#6b7280; transition:transform 0.2s; }
+.map-toggle-arr.open { transform:rotate(180deg); }
+.map-iframe-wrap { border-radius:10px; overflow:hidden; border:1px solid #e5e7eb; margin-bottom:12px; }
+.map-note { font-size:11px; color:#9ca3af; text-align:center; padding:5px 0 8px; }
+.miffy-icon { background: none !important; border: none !important; box-shadow: none !important; filter: drop-shadow(0 0 2px white) drop-shadow(0 1px 3px rgba(0,0,0,0.8)); }
+img.leaflet-marker-icon.miffy-icon { border: none !important; outline: none !important; box-shadow: none !important; background: transparent !important; }
+.leaflet-marker-icon:focus { outline: none !important; }
+.leaflet-interactive:focus { outline: none !important; }
 .hidden { display: none; }
 .food-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .flat-list { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
@@ -99,6 +114,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="tab" onclick="showDay('d4',this)">Day 4</div>
     <div class="tab" onclick="showDay('d5',this)">Day 5</div>
     <div class="tab" onclick="showDay('about',this)">關於</div>
+  </div>
+
+  <!-- Fixed Map -->
+  <div class="map-fixed">
+    <div id="leaflet-map-fixed" style="width:100%;height:220px;"></div>
   </div>
 
   <div class="content">
@@ -357,6 +377,77 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </div>
 
 <script>
+var fixedMap = null;
+var fixedMapInited = false;
+var currentDayMarkers = [];
+
+var daySpots = {
+  'd1': { center: [35.1270, 129.0400], zoom: 13,
+    kml: 'https://www.google.com/maps/d/kml?mid=15DFptaFp3l-ORjdOSQxE15S2i4CHrVA&lid=BkXuX_dwuFg&forcekml=1&t=' + Date.now() },
+  'd2': { center: [35.1520, 129.1300], zoom: 12,
+    kml: 'https://www.google.com/maps/d/kml?mid=15DFptaFp3l-ORjdOSQxE15S2i4CHrVA&lid=8dnYLlkjYyc&forcekml=1&t=' + Date.now() },
+  'd3': { center: [35.0900, 129.0200], zoom: 12,
+    kml: 'https://www.google.com/maps/d/kml?mid=15DFptaFp3l-ORjdOSQxE15S2i4CHrVA&lid=G-1qd6wOvoY&forcekml=1&t=' + Date.now() },
+  'd4': { center: [35.1560, 129.1260], zoom: 13,
+    kml: 'https://www.google.com/maps/d/kml?mid=15DFptaFp3l-ORjdOSQxE15S2i4CHrVA&lid=JlKRadxrnHA&forcekml=1&t=' + Date.now() }
+};
+
+var miffyIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/lino447/BusanHTML/main/meme/miffy.png',
+  iconSize: [48, 48],
+  iconAnchor: [18, 36],
+  popupAnchor: [0, -36],
+  className: 'miffy-icon'
+});
+
+function initFixedMap() {
+  if (fixedMapInited) return;
+  fixedMapInited = true;
+  fixedMap = L.map('leaflet-map-fixed', { zoomControl: true }).setView([35.1270, 129.0400], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 19
+  }).addTo(fixedMap);
+}
+
+function clearMarkers() {
+  currentDayMarkers.forEach(function(m) { fixedMap.removeLayer(m); });
+  currentDayMarkers = [];
+}
+
+function loadDayMap(dayId) {
+  if (!fixedMap) return;
+  clearMarkers();
+  var d = daySpots[dayId];
+  if (!d) return;
+  fixedMap.setView(d.center, d.zoom);
+  if (d.kml) {
+    var customLayer = L.geoJson(null, {
+      pointToLayer: function(feature, latlng) {
+        return L.marker(latlng, { icon: miffyIcon });
+      },
+      onEachFeature: function(feature, layer) {
+        var name = feature.properties && feature.properties.name;
+        var desc = feature.properties && feature.properties.description;
+        if (name) {
+          layer.bindPopup('<div style="font-size:13px;font-weight:600;color:#1a5276;">' + name + (desc ? '<br><span style="font-size:11px;color:#6b7280;">' + desc + '</span>' : '') + '</div>');
+        }
+        currentDayMarkers.push(layer);
+      }
+    });
+    omnivore.kml(d.kml, null, customLayer).on('ready', function() {
+      if (customLayer.getBounds().isValid()) fixedMap.fitBounds(customLayer.getBounds());
+    }).addTo(fixedMap);
+    currentDayMarkers.push(customLayer);
+  } else {
+    d.spots.forEach(function(spot) {
+      var m = L.marker([spot.lat, spot.lng], { icon: miffyIcon })
+        .addTo(fixedMap)
+        .bindPopup('<div style="font-size:13px;font-weight:600;color:#1a5276;">' + spot.name + '</div>');
+      currentDayMarkers.push(m);
+    });
+  }
+}
+
 function showDay(id, el) {
   ['d1','d2','d3','d4','d5','about'].forEach(function(d) {
     document.getElementById(d).classList.add('hidden');
@@ -364,7 +455,23 @@ function showDay(id, el) {
   document.getElementById(id).classList.remove('hidden');
   document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
   el.classList.add('active');
+  var mapFixed = document.querySelector('.map-fixed');
+  if (daySpots[id]) {
+    mapFixed.style.display = 'block';
+    setTimeout(function() {
+      initFixedMap();
+      fixedMap.invalidateSize();
+      loadDayMap(id);
+    }, 50);
+  } else {
+    mapFixed.style.display = 'none';
+  }
 }
+
+window.addEventListener('load', function() {
+  initFixedMap();
+  loadDayMap('d1');
+});
 function copyDriver() {
   var text = "飯店出發，機場抵達預訂。\n☆ 預訂日期：9/27\n☆ 人數：成年人4位\n航班號碼：BR1193\n飯店出發時間：7:20am\n承運人、行李數量：長榮航空（EVA Air）29寸行李箱*4 手提行李袋*3\n飯店名稱（地址）：HOTEL25H THE PARK 520-18 Bujeon-dong Busanjin-gu Busan";
   if (navigator.clipboard) {
