@@ -11,8 +11,8 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; }
 .app { max-width: 390px; width: 100%; background: #f0f2f5; min-height: 100vh; }
-.hero { background: linear-gradient(160deg, #1a5276 0%, #2e86ab 100%); padding: 1.5rem 1.25rem 2rem; position: relative; overflow: hidden; }
-.hero::before { content: '🌊'; position: absolute; right: -10px; bottom: -10px; font-size: 80px; opacity: 0.15; }
+.hero { background: linear-gradient(160deg, rgba(13,59,82,0.85) 0%, rgba(26,107,138,0.75) 50%, rgba(46,134,171,0.7) 100%), url('https://plus.unsplash.com/premium_photo-1661963130289-aa70dd516940?fm=jpg&q=60&w=800&auto=format&fit=crop') center 70%/cover no-repeat; padding: 1.5rem 1.25rem 2rem; position: relative; overflow: hidden; }
+.hero::before { display: none; }
 .hero-label { font-size: 11px; color: rgba(255,255,255,0.7); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
 .hero-title { font-size: 26px; font-weight: 600; color: #fff; margin-bottom: 4px; }
 .hero-sub { font-size: 13px; color: rgba(255,255,255,0.75); }
