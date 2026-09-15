@@ -97,6 +97,37 @@ img.leaflet-marker-icon.miffy-icon { border: none !important; outline: none !imp
 .placeholder-card { background: #fff; border: 1.5px dashed #d1d5db; border-radius: 14px; padding: 24px; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .placeholder-icon { font-size: 28px; }
 .placeholder-text { font-size: 13px; color: #9ca3af; }
+
+/* ===== Google Sheet Expense UI ===== */
+.expense-panel { background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; margin-bottom:16px; }
+.expense-header { background:#2e86ab; color:#fff; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; }
+.expense-title { font-size:14px; font-weight:700; }
+.expense-sub { font-size:11px; color:rgba(255,255,255,.8); margin-top:3px; }
+.expense-refresh { width:34px; height:34px; border:1px solid rgba(255,255,255,.35); border-radius:9px; background:rgba(255,255,255,.15); color:#fff; font-size:20px; cursor:pointer; }
+.expense-summary { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:10px 12px 0; }
+.expense-summary > div { background:#f8fafc; border-radius:10px; padding:9px 10px; }
+.expense-summary span { display:block; font-size:10px; color:#9ca3af; }
+.expense-summary b { display:block; font-size:16px; color:#111827; margin-top:2px; }
+.expense-status { font-size:11px; color:#6b7280; padding:9px 12px 4px; }
+.expense-list { padding:0 12px 4px; }
+.expense-row { border:1px solid #e5e7eb; border-radius:10px; padding:10px; margin:7px 0; }
+.expense-row-main { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.expense-row-item { font-size:13px; font-weight:600; color:#111827; }
+.expense-row-amount { font-size:14px; font-weight:700; color:#2e86ab; white-space:nowrap; }
+.expense-row-meta { font-size:11px; color:#6b7280; line-height:1.6; margin-top:3px; }
+.expense-row-actions { display:flex; gap:6px; margin-top:7px; }
+.expense-row-actions button { flex:1; border:1px solid #e5e7eb; background:#f9fafb; border-radius:7px; padding:5px; font-size:11px; cursor:pointer; }
+.expense-row-actions button.delete { color:#991b1b; }
+.expense-add-btn { width:calc(100% - 24px); margin:8px 12px 12px; border:0; border-radius:9px; background:#2e86ab; color:#fff; padding:10px; font-size:13px; font-weight:600; cursor:pointer; }
+.expense-editor { margin:0 12px 12px; padding:12px; background:#f8fafc; border:1px solid #e5e7eb; border-radius:10px; }
+.expense-editor-title { font-size:13px; font-weight:700; color:#111827; margin-bottom:9px; }
+.expense-editor label { display:block; font-size:11px; color:#6b7280; margin:7px 0; }
+.expense-editor input, .expense-editor select, .expense-editor textarea { display:block; width:100%; margin-top:4px; padding:8px 9px; border:1px solid #d1d5db; border-radius:7px; background:#fff; font:inherit; font-size:12px; }
+.expense-editor textarea { resize:vertical; }
+.expense-editor-actions { display:flex; gap:8px; margin-top:10px; }
+.expense-editor-actions button { flex:1; border:1px solid #d1d5db; border-radius:8px; padding:8px; background:#fff; cursor:pointer; }
+.expense-editor-actions button.primary { background:#2e86ab; color:#fff; border-color:#2e86ab; }
+
 </style>
 </head>
 <body>
@@ -125,6 +156,42 @@ img.leaflet-marker-icon.miffy-icon { border: none !important; outline: none !imp
     <!-- Static extras per day (flight, tips, driver) -->
     <!-- ===== 關於 ===== -->
     <div id="about" class="hidden">
+      <!-- ===== Google Sheet 記帳 ===== -->
+      <div class="expense-panel">
+        <div class="expense-header">
+          <div>
+            <div class="expense-title">💰 旅遊記帳</div>
+            <div class="expense-sub">資料直接同步到 Google Sheet</div>
+          </div>
+          <button class="expense-refresh" onclick="loadExpenses()">↻</button>
+        </div>
+
+        <div class="expense-summary">
+          <div><span>總支出</span><b id="expense-total">₩0</b></div>
+          <div><span>筆數</span><b id="expense-count">0</b></div>
+        </div>
+
+        <div id="expense-status" class="expense-status">尚未連線</div>
+        <div id="expense-list" class="expense-list"></div>
+
+        <button class="expense-add-btn" onclick="openExpenseEditor()">＋ 新增支出</button>
+
+        <div id="expense-editor" class="expense-editor hidden">
+          <div class="expense-editor-title" id="expense-editor-title">新增支出</div>
+          <input type="hidden" id="expense-id">
+          <label>日期<input id="expense-date" type="date"></label>
+          <label>項目<input id="expense-item" type="text" placeholder="例如：海鮮餐廳"></label>
+          <label>金額<input id="expense-amount" type="number" min="0" step="1" placeholder="₩"></label>
+          <label>付款人<select id="expense-payer"></select></label>
+          <label>分攤對象<input id="expense-share" type="text" placeholder="例如：全部 / Ranen,Gino"></label>
+          <label>備註<textarea id="expense-note" rows="2" placeholder="備註（可留白）"></textarea></label>
+          <div class="expense-editor-actions">
+            <button onclick="closeExpenseEditor()">取消</button>
+            <button class="primary" onclick="saveExpense()">儲存</button>
+          </div>
+        </div>
+      </div>
+
       <div class="section-label" style="margin-top:0;">🧑‍🤝‍🧑 成員介紹</div>
 
       <!-- Fish Mountain -->
@@ -137,7 +204,7 @@ img.leaflet-marker-icon.miffy-icon { border: none !important; outline: none !imp
           <div class="member-meta">
             <span class="meta-pill pill-shop">金牛座</span>
           </div>
-          <div class="member-desc">喜歡你在我心裡跳舞</div>
+          <div class="member-desc">歡你在我心裡跳舞</div>
         </div>
       </div>
 
@@ -566,7 +633,201 @@ function initFromKML() {
 window.addEventListener('load', function() {
   initFixedMap();
   initFromKML();
+  initExpensePayer();
+  loadExpenses();
 });
+
+
+// ===== GOOGLE SHEET EXPENSES =====
+// 1. 建立 Google Sheet
+// 2. 建立 Apps Script Web App
+// 3. 把 Web App URL 貼到下面
+var EXPENSE_API_URL = 'https://script.google.com/macros/s/AKfycbzMGQplDsza2Xn4yI1G-MO5hEvLrA9MX7cS5slpNDvDBE4AMJ5sjQnYYsu6wkJ8CDkb/exec';
+
+var EXPENSE_MEMBERS = ['Ranen', 'Gino', 'Hailey', 'Fish Mountain', '阿奇', '小花生'];
+var expenses = [];
+
+function expenseEscape(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function expenseSetStatus(text, error) {
+  var el = document.getElementById('expense-status');
+  if (!el) return;
+  el.textContent = text;
+  el.style.color = error ? '#991b1b' : '#6b7280';
+}
+
+function expenseFormatAmount(amount) {
+  var n = Number(amount) || 0;
+  return '₩' + n.toLocaleString('ko-KR');
+}
+
+function initExpensePayer() {
+  var select = document.getElementById('expense-payer');
+  if (!select) return;
+  select.innerHTML = EXPENSE_MEMBERS.map(function(name) {
+    return '<option value="' + expenseEscape(name) + '">' + expenseEscape(name) + '</option>';
+  }).join('');
+}
+
+function renderExpenses() {
+  var list = document.getElementById('expense-list');
+  if (!list) return;
+
+  var total = expenses.reduce(function(sum, e) {
+    return sum + (Number(e.amount) || 0);
+  }, 0);
+
+  document.getElementById('expense-total').textContent = expenseFormatAmount(total);
+  document.getElementById('expense-count').textContent = expenses.length;
+
+  if (!expenses.length) {
+    list.innerHTML = '<div style="font-size:12px;color:#9ca3af;padding:8px 0 10px;text-align:center;">目前沒有記帳資料</div>';
+    return;
+  }
+
+  list.innerHTML = expenses.map(function(e, i) {
+    return '<div class="expense-row">' +
+      '<div class="expense-row-main">' +
+        '<div class="expense-row-item">' + expenseEscape(e.item || '未命名') + '</div>' +
+        '<div class="expense-row-amount">' + expenseFormatAmount(e.amount) + '</div>' +
+      '</div>' +
+      '<div class="expense-row-meta">' +
+        (e.date ? expenseEscape(e.date) + ' · ' : '') +
+        '付款：' + expenseEscape(e.payer || '-') +
+        (e.share ? ' · 分攤：' + expenseEscape(e.share) : '') +
+        (e.note ? '<br>📝 ' + expenseEscape(e.note) : '') +
+      '</div>' +
+      '<div class="expense-row-actions">' +
+        '<button onclick="openExpenseEditor(' + i + ')">✏️ 編輯</button>' +
+        '<button class="delete" onclick="deleteExpense(' + i + ')">🗑 刪除</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function loadExpenses() {
+  if (!EXPENSE_API_URL || EXPENSE_API_URL.indexOf('YOUR_') === 0) {
+    expenseSetStatus('請先設定 Google Apps Script Web App URL', true);
+    return;
+  }
+
+  expenseSetStatus('同步中...');
+  fetch(EXPENSE_API_URL + '?action=list&t=' + Date.now())
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(data) {
+      if (!data.ok) throw new Error(data.error || '讀取失敗');
+      expenses = data.rows || [];
+      renderExpenses();
+      expenseSetStatus('✓ 已同步 Google Sheet');
+    })
+    .catch(function(err) {
+      console.error('Google Sheet load error:', err);
+      expenseSetStatus('Google Sheet 連線失敗：' + err.message, true);
+    });
+}
+
+function openExpenseEditor(index) {
+  var editor = document.getElementById('expense-editor');
+  if (!editor) return;
+
+  initExpensePayer();
+
+  var e = (typeof index === 'number') ? expenses[index] : null;
+  document.getElementById('expense-editor-title').textContent = e ? '編輯支出' : '新增支出';
+  document.getElementById('expense-id').value = e ? e.id : '';
+  document.getElementById('expense-date').value = e ? e.date : new Date().toISOString().slice(0,10);
+  document.getElementById('expense-item').value = e ? e.item : '';
+  document.getElementById('expense-amount').value = e ? e.amount : '';
+  document.getElementById('expense-payer').value = e ? e.payer : EXPENSE_MEMBERS[0];
+  document.getElementById('expense-share').value = e ? e.share : '全部';
+  document.getElementById('expense-note').value = e ? e.note : '';
+
+  editor.classList.remove('hidden');
+  editor.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function closeExpenseEditor() {
+  var editor = document.getElementById('expense-editor');
+  if (editor) editor.classList.add('hidden');
+}
+
+function saveExpense() {
+  if (!EXPENSE_API_URL || EXPENSE_API_URL.indexOf('YOUR_') === 0) {
+    alert('請先設定 Google Apps Script Web App URL');
+    return;
+  }
+
+  var item = document.getElementById('expense-item').value.trim();
+  var amount = Number(document.getElementById('expense-amount').value);
+
+  if (!item || !amount || amount < 0) {
+    alert('請輸入項目與正確金額');
+    return;
+  }
+
+  var payload = {
+    action: document.getElementById('expense-id').value ? 'update' : 'create',
+    id: document.getElementById('expense-id').value,
+    date: document.getElementById('expense-date').value,
+    item: item,
+    amount: amount,
+    payer: document.getElementById('expense-payer').value,
+    share: document.getElementById('expense-share').value.trim(),
+    note: document.getElementById('expense-note').value.trim()
+  };
+
+  expenseSetStatus('儲存中...');
+
+  fetch(EXPENSE_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.ok) throw new Error(data.error || '儲存失敗');
+    closeExpenseEditor();
+    expenseSetStatus('✓ 已儲存，正在同步...');
+    loadExpenses();
+  })
+  .catch(function(err) {
+    console.error('Google Sheet save error:', err);
+    expenseSetStatus('儲存失敗：' + err.message, true);
+    alert('儲存失敗：' + err.message);
+  });
+}
+
+function deleteExpense(index) {
+  var e = expenses[index];
+  if (!e) return;
+  if (!confirm('確定要刪除「' + e.item + '」嗎？')) return;
+
+  expenseSetStatus('刪除中...');
+
+  fetch(EXPENSE_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action:'delete', id:e.id })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.ok) throw new Error(data.error || '刪除失敗');
+    loadExpenses();
+  })
+  .catch(function(err) {
+    console.error('Google Sheet delete error:', err);
+    expenseSetStatus('刪除失敗：' + err.message, true);
+    alert('刪除失敗：' + err.message);
+  });
+}
 
 function copyText(text) {
   if (navigator.clipboard) {
