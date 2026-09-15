@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>CORS Test</title></head>
+<body>
+<button onclick="test()">測試 KML CORS</button>
+<pre id="result">點按鈕測試...</pre>
+<script>
+function test() {
+  var url = 'https://www.google.com/maps/d/kml?forcekml=1&mid=15DFptaFp3l-ORjdOSQxE15S2i4CHrVA';
+  document.getElementById('result').textContent = '測試中...';
+  fetch(url)
+    .then(function(r) {
+      document.getElementById('result').textContent = '✅ 成功！status: ' + r.status;
+      return r.text();
+    })
+    .then(function(text) {
+      document.getElementById('result').textContent += '\n前100字: ' + text.substring(0, 100);
+    })
+    .catch(function(e) {
+      document.getElementById('result').textContent = '❌ 失敗：' + e.message;
+    });
+}
+</script>
+</body>
+</html>
