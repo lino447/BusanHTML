@@ -73,6 +73,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .driver-val { color: #111827; font-weight: 500; line-height: 1.5; }
 .copy-btn { display: block; width: calc(100% - 28px); margin: 0 14px 14px; padding: 10px; background: #2e86ab; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
 .copy-btn:active { background: #1a5276; }
+.member-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; margin-bottom: 12px; display: flex; align-items: center; gap: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.member-gif { width: 90px; height: 90px; object-fit: cover; display: block; flex-shrink: 0; border-radius: 0 0 0 14px; }
+.member-body { padding: 12px 14px; flex: 1; min-width: 0; }
+.member-name { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 5px; }
+.member-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+.member-desc { font-size: 12px; color: #6b7280; line-height: 1.6; }
+.placeholder-card { background: #fff; border: 1.5px dashed #d1d5db; border-radius: 14px; padding: 24px; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.placeholder-icon { font-size: 28px; }
+.placeholder-text { font-size: 13px; color: #9ca3af; }
 </style>
 </head>
 <body>
@@ -89,6 +98,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="tab" onclick="showDay('d3',this)">Day 3</div>
     <div class="tab" onclick="showDay('d4',this)">Day 4</div>
     <div class="tab" onclick="showDay('d5',this)">Day 5</div>
+    <div class="tab" onclick="showDay('about',this)">關於</div>
   </div>
 
   <div class="content">
@@ -253,12 +263,102 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       </div>
     </div>
 
+    <!-- ===== 關於 ===== -->
+    <div id="about" class="hidden">
+      <div class="section-label" style="margin-top:0;">🧑‍🤝‍🧑 成員介紹</div>
+
+      <!-- Fish Mountain -->
+      <div class="member-card">
+        <img class="member-gif"
+          src="https://raw.githubusercontent.com/lino447/BusanHTML/main/meme/coolsunglass.gif"
+          alt="Fish Mountain">
+        <div class="member-body">
+          <div class="member-name">Fish Mountain 🐟</div>
+          <div class="member-meta">
+            <span class="meta-pill pill-shop">金牛座</span>
+          </div>
+          <div class="member-desc">喜歡你在我心裡跳舞</div>
+        </div>
+      </div>
+
+      <!-- Gino Lee -->
+      <div class="member-card">
+        <img class="member-gif"
+          src="https://raw.githubusercontent.com/lino447/BusanHTML/main/meme/Ireallyloveyou.gif"
+          alt="Gino Lee">
+        <div class="member-body">
+          <div class="member-name">Gino Lee 👨‍⚕️</div>
+          <div class="member-meta">
+            <span class="meta-pill pill-shop">雙子座</span>
+          </div>
+          <div class="member-desc"></div>
+        </div>
+      </div>
+
+      <!-- Hailey Fu -->
+      <div class="member-card">
+        <img class="member-gif"
+          src="https://raw.githubusercontent.com/lino447/BusanHTML/main/meme/eat.gif"
+          alt="Hailey Fu">
+        <div class="member-body">
+          <div class="member-name">Hailey Fu 🐰</div>
+          <div class="member-meta">
+            <span class="meta-pill pill-shop">天蠍座</span>
+          </div>
+          <div class="member-desc">貪吃但吃不多，卻愛吃醋。</div>
+        </div>
+      </div>
+
+      <!-- Ranen -->
+      <div class="member-card">
+        <img class="member-gif"
+          src="https://raw.githubusercontent.com/lino447/BusanHTML/main/meme/racing.gif"
+          alt="Ranen">
+        <div class="member-body">
+          <div class="member-name">Ranen 🧑‍💻</div>
+          <div class="member-meta">
+            <span class="meta-pill pill-sight">射手座</span>
+          </div>
+          <div class="member-desc">熟了話很多。</div>
+        </div>
+      </div>
+
+      <!-- aki -->
+      <div class="member-card">
+        <img class="member-gif"
+          src="https://raw.githubusercontent.com/lino447/BusanHTML/main/meme/aki.jpg"
+          alt="aki">
+        <div class="member-body">
+          <div class="member-name">阿奇🐦</div>
+          <div class="member-meta">
+            <span class="meta-pill pill-sight">水瓶座</span>
+          </div>
+          <div class="member-desc">你一定要追蹤我 因為我會變成大明星。</div>
+        </div>
+      </div>
+
+      <!-- nut -->
+      <div class="member-card">
+        <img class="member-gif"
+          src="https://raw.githubusercontent.com/lino447/BusanHTML/main/meme/nut.jpg"
+          alt="nut">
+        <div class="member-body">
+          <div class="member-name">小花生🥜🐧</div>
+          <div class="member-meta">
+            <span class="meta-pill pill-sight">雙魚座</span>
+          </div>
+          <div class="member-desc">搶鏡頭不手軟。</div>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 </div>
 
 <script>
 function showDay(id, el) {
-  ['d1','d2','d3','d4','d5'].forEach(function(d) {
+  ['d1','d2','d3','d4','d5','about'].forEach(function(d) {
     document.getElementById(d).classList.add('hidden');
   });
   document.getElementById(id).classList.remove('hidden');
