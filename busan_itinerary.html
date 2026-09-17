@@ -132,6 +132,58 @@ img.leaflet-marker-icon.miffy-icon { border: none !important; outline: none !imp
 .expense-modal-title { font-size:16px; font-weight:700; color:#111827; }
 .expense-modal-close { width:32px; height:32px; border:none; background:#f3f4f6; border-radius:50%; font-size:18px; cursor:pointer; color:#6b7280; line-height:32px; text-align:center; }
 
+/* ===== Dark Mode ===== */
+body.dark { background:#111827; }
+body.dark .app { background:#111827; }
+body.dark .tabs { background:#1f2937; }
+body.dark .tab { color:#9ca3af; }
+body.dark .tab.active { color:#f9fafb; }
+body.dark .tab-indicator { background:rgba(55,65,81,0.9); box-shadow:0 2px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12); }
+body.dark .map-fixed { background:#111827; }
+body.dark .stop-card { background:#1f2937; border-color:#374151; }
+body.dark .stop-card:active { background:#1a3a5c; border-color:#2e86ab; box-shadow:0 0 0 2px #2e86ab55; }
+body.dark .stop-name { color:#f9fafb; }
+body.dark .stop-desc { color:#9ca3af; }
+body.dark .timeline::before { background:#374151; }
+body.dark .stop::before { border-color:#111827; }
+body.dark .section-label { color:#9ca3af; }
+body.dark .section-divider { background:#374151; }
+body.dark .flat-list { background:#1f2937; border-color:#374151; }
+body.dark .flat-item { color:#d1d5db; border-bottom-color:#374151; }
+body.dark .flat-item b { color:#f9fafb; }
+body.dark .tip-box { background:#1e3a4a; border-color:#2e86ab; }
+body.dark .tip-title, body.dark .tip-text { color:#7dd3fc; }
+body.dark .driver-card { background:#1f2937; border-color:#854d0e; }
+body.dark .driver-title { background:#292107; color:#fde68a; }
+body.dark .driver-row { border-bottom-color:#374151; }
+body.dark .driver-val { color:#f9fafb; }
+body.dark .member-card { background:#1f2937; border-color:#374151; box-shadow:none; }
+body.dark .member-name { color:#f9fafb; }
+body.dark .member-desc { color:#9ca3af; }
+body.dark .placeholder-card { background:#1f2937; border-color:#374151; }
+body.dark .placeholder-text { color:#6b7280; }
+body.dark .expense-panel { background:#1f2937; border-color:#374151; }
+body.dark .expense-summary > div { background:#111827; }
+body.dark .expense-summary b { color:#f9fafb; }
+body.dark .expense-row { background:#111827; border-color:#374151; }
+body.dark .expense-row-item { color:#f9fafb; }
+body.dark .expense-row-meta { color:#9ca3af; }
+body.dark .expense-row-actions button { background:#1f2937; border-color:#374151; color:#d1d5db; }
+body.dark .expense-add-btn { background:#1a5276; }
+body.dark .expense-modal { background:#1f2937; }
+body.dark .expense-modal-title { color:#f9fafb; }
+body.dark .expense-modal-close { background:#374151; color:#d1d5db; }
+body.dark .expense-modal label { color:#d1d5db !important; }
+body.dark .expense-modal input,
+body.dark .expense-modal select,
+body.dark .expense-modal textarea { background:#111827!important; -webkit-background-color:#111827!important; border-color:#4b5563!important; color:#f9fafb!important; -webkit-text-fill-color:#f9fafb!important; color-scheme:dark; }
+body.dark .expense-modal input::placeholder,
+body.dark .expense-modal textarea::placeholder { color:#6b7280!important; }
+body.dark .expense-modal button:not(.primary) { background:#374151!important; border-color:#4b5563!important; color:#f9fafb!important; }
+body.dark .expense-modal-overlay { background:rgba(0,0,0,.65); }
+body.dark .expense-modal-saving { background:rgba(17,24,39,.85); color:#60a5fa; }
+body.dark .expense-deleting-overlay { background:rgba(17,24,39,.85); color:#60a5fa; }
+
 /* ===== Settings Icon Grid ===== */
 .icon-option { display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; }
 .icon-option img { width:56px; height:56px; border-radius:12px; border:2px solid transparent; object-fit:cover; }
@@ -193,7 +245,7 @@ img.leaflet-marker-icon.miffy-icon { border: none !important; outline: none !imp
           <button class="expense-modal-close" onclick="closeExpenseEditor()">✕</button>
         </div>
         <input type="hidden" id="expense-id">
-        <label class="expense-editor" style="display:block;font-size:11px;color:#6b7280;margin:7px 0;">日期<input id="expense-date" type="date" style="display:block;width:100%;margin-top:4px;padding:8px 9px;border:1px solid #d1d5db;border-radius:7px;font-size:16px;-webkit-appearance:none;appearance:none;box-sizing:border-box;"></label>
+        <label style="display:block;font-size:11px;color:#6b7280;margin:7px 0;">日期<input id="expense-date" type="date" style="display:block;width:100%;margin-top:4px;padding:8px 9px;border:1px solid #d1d5db;border-radius:7px;font-size:16px;-webkit-appearance:none;appearance:none;box-sizing:border-box;"></label>
         <label style="display:block;font-size:11px;color:#6b7280;margin:7px 0;">項目<input id="expense-item" type="text" placeholder="例如：海鮮餐廳" style="display:block;width:100%;margin-top:4px;padding:8px 9px;border:1px solid #d1d5db;border-radius:7px;font-size:16px;box-sizing:border-box;"></label>
         <label style="display:block;font-size:11px;color:#6b7280;margin:7px 0;">類別<select id="expense-category" style="display:block;width:100%;margin-top:4px;padding:8px 9px;border:1px solid #d1d5db;border-radius:7px;font-size:16px;background:#fff;box-sizing:border-box;"><option value="餐飲">餐飲</option><option value="交通">交通</option><option value="購物">購物</option><option value="景點">景點</option><option value="其他">其他</option></select></label>
         <label style="display:block;font-size:11px;color:#6b7280;margin:7px 0;">幣種與金額
@@ -224,6 +276,17 @@ img.leaflet-marker-icon.miffy-icon { border: none !important; outline: none !imp
             <div style="font-size:12px;color:#9ca3af;">載入中...</div>
           </div>
           <div id="icon-hint" style="font-size:11px;color:#9ca3af;margin-top:10px;">選好後重新「加入主畫面」即可套用</div>
+        </div>
+        <div style="border-top:1px solid #e5e7eb;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#111827;" id="dark-mode-label">深色模式</div>
+            <div style="font-size:11px;color:#9ca3af;margin-top:2px;">儲存在此裝置</div>
+          </div>
+          <label style="position:relative;display:inline-block;width:44px;height:26px;margin:0;">
+            <input type="checkbox" id="dark-mode-toggle" onchange="setDarkMode(this.checked)" style="opacity:0;width:0;height:0;">
+            <span id="dark-toggle-slider" style="position:absolute;inset:0;background:#d1d5db;border-radius:26px;transition:.2s;cursor:pointer;"></span>
+            <span id="dark-toggle-knob" style="position:absolute;left:3px;top:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s;pointer-events:none;"></span>
+          </label>
         </div>
       </div>
     </div>
@@ -387,6 +450,18 @@ function initFixedMap() {
   fixedMapInited = true;
   fixedMap = L.map('leaflet-map-fixed', { zoomControl: true }).setView([35.1270, 129.0400], 13);
   currentTileLayer = L.tileLayer(TILE_LIGHT, { attribution: '\u00a9 OpenStreetMap', maxZoom: 19 }).addTo(fixedMap);
+  applyMapDarkFilter();
+}
+
+function applyMapDarkFilter() {
+  var el = document.querySelector('#leaflet-map-fixed .leaflet-tile-pane');
+  if (!el) return;
+  var isDark = document.body.classList.contains('dark');
+  el.style.filter = isDark ? 'invert(1) hue-rotate(200deg) saturate(0.2) brightness(0.85) contrast(0.9)' : '';
+}
+
+function updateMapTile() {
+  applyMapDarkFilter();
 }
 
 function clearMarkers() {
@@ -506,7 +581,8 @@ function buildSpotCards(container, markersDict, dayId) {
       this.querySelector('.stop-card').style.borderColor = '#2e86ab';
     });
     el.addEventListener('mouseout', function() {
-      this.querySelector('.stop-card').style.borderColor = '#e5e7eb';
+      var isDark = document.body.classList.contains('dark');
+      this.querySelector('.stop-card').style.borderColor = isDark ? '#374151' : '#e5e7eb';
     });
   });
 }
@@ -1064,13 +1140,32 @@ function applyIcon(filename) {
   });
 }
 
+function setDarkMode(enabled) {
+  document.body.classList.toggle('dark', enabled);
+  localStorage.setItem('darkMode', enabled ? '1' : '0');
+  var slider = document.getElementById('dark-toggle-slider');
+  var knob = document.getElementById('dark-toggle-knob');
+  var label = document.getElementById('dark-mode-label');
+  if (slider) slider.style.background = enabled ? '#2e86ab' : '#d1d5db';
+  if (knob) knob.style.left = enabled ? '21px' : '3px';
+  if (label) label.style.color = enabled ? '#f9fafb' : '#111827';
+  updateMapTile();
+}
+
 function initSettings() {
-  var saved = localStorage.getItem('selectedIcon');
-  if (saved) {
+  var savedIcon = localStorage.getItem('selectedIcon');
+  if (savedIcon) {
     var base = 'https://raw.githubusercontent.com/lino447/BusanHTML/main/icon/';
     document.querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]').forEach(function(el) {
-      el.href = base + saved;
+      el.href = base + savedIcon;
     });
+  }
+  var dark = localStorage.getItem('darkMode') === '1';
+  if (dark) {
+    document.body.classList.add('dark');
+    var toggle = document.getElementById('dark-mode-toggle');
+    if (toggle) toggle.checked = true;
+    setDarkMode(true);
   }
 }
 </script>
