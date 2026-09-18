@@ -201,9 +201,9 @@ body.dark .expense-deleting-overlay { background:rgba(17,24,39,.85); color:#60a5
 
   <div class="tabs" id="tab-container">
     <!-- KML tabs injected here -->
-    <div class="tab" onclick="showDay('about',this)">關於</div>
     <div class="tab" onclick="showExpenseTab(this)">💰 記帳</div>
     <div class="tab" onclick="showSettingsTab(this)">⚙️ 設定</div>
+    <div class="tab" onclick="showDay('about',this)">關於</div>
   </div>
 
   <!-- Fixed Map -->
@@ -721,8 +721,8 @@ function initFromKML() {
           return function() { showDay(n, t); };
         })(name, tabElem);
 
-        var aboutTab = tabContainer.querySelector('[onclick*="about"]');
-        tabContainer.insertBefore(tabElem, aboutTab);
+        var expenseTab = tabContainer.querySelector('[onclick*="showExpenseTab"]');
+        tabContainer.insertBefore(tabElem, expenseTab);
         if (!firstTab) firstTab = { name: name, tab: tabElem };
 
         var tabId = name.replace(/\s/g, '');
