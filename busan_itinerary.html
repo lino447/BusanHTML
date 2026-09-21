@@ -52,16 +52,17 @@ body::after {
 .hero-label { font-size: 11px; color: rgba(255,255,255,0.7); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
 .hero-title { font-size: 26px; font-weight: 600; color: #fff; margin-bottom: 4px; }
 .hero-sub { font-size: 13px; color: rgba(255,255,255,0.75); }
-.tabs { display:flex; gap:6px; position:sticky; top:8px; z-index:20; margin:8px 12px 0; padding:4px; border-radius:14px; overflow-x:auto; scrollbar-width:none; isolation:isolate; background:linear-gradient(135deg,rgba(255,255,255,.38),rgba(255,255,255,.10) 52%,rgba(255,255,255,.25)); border:1px solid rgba(255,255,255,.68); box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 1px 0 0 rgba(255,255,255,.45),inset -1px 0 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.32),0 10px 28px rgba(31,41,55,.15); backdrop-filter:blur(24px) saturate(175%) contrast(108%); -webkit-backdrop-filter:blur(24px) saturate(175%) contrast(108%); }
+.tabs { display:flex; gap:6px; position:sticky; top:8px; z-index:20; margin:8px 12px 0; padding:4px; border-radius:14px; overflow-x:auto; scrollbar-width:none; scroll-behavior:smooth; isolation:isolate; background:linear-gradient(135deg,rgba(255,255,255,.38),rgba(255,255,255,.10) 52%,rgba(255,255,255,.25)); border:1px solid rgba(255,255,255,.68); box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 1px 0 0 rgba(255,255,255,.45),inset -1px 0 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.32),0 10px 28px rgba(31,41,55,.15); backdrop-filter:blur(24px) saturate(175%) contrast(108%); -webkit-backdrop-filter:blur(24px) saturate(175%) contrast(108%); }
 .tabs > *:not(.tab-indicator) { position:relative; z-index:4; }
 .tabs::before { content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:2; background:linear-gradient(180deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.24) 8%,rgba(255,255,255,0) 22%,rgba(255,255,255,0) 78%,rgba(255,255,255,.14) 94%,rgba(255,255,255,.40) 100%); }
 .tabs::after { content:""; position:absolute; inset:1px; border-radius:inherit; pointer-events:none; z-index:3; box-shadow:inset 0 0 0 1px rgba(255,255,255,.38),inset 0 0 14px rgba(255,255,255,.12); }
 .tabs::-webkit-scrollbar { display: none; }
-.tab { flex: none; padding: 6px 14px; font-size: 13px; font-weight: 500; color: #374151; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: all 0.18s; }
-.tab.active { background: rgba(255,255,255,0.9); color: #111827; box-shadow: 0 2px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1); font-weight: 600; }
+.tab { flex: none; padding: 6px 14px; font-size: 13px; font-weight: 500; color: #374151; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: color 0.18s; position: relative; z-index: 5; }
+.tab.active { color: #111827; font-weight: 600; }
+.tab-indicator { position: absolute; border-radius: 8px; background: rgba(255,255,255,0.9); box-shadow: 0 2px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1); pointer-events: none; z-index: 4; transition: left 0.25s cubic-bezier(.25,.46,.45,.94), width 0.25s cubic-bezier(.25,.46,.45,.94); }
 .map-fixed { position: sticky; top: 52px; z-index: 10; background: transparent; padding: 10px 12px; }
 .map-fixed #leaflet-map-fixed { width: 100%; height: 220px; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; }
-.content { padding: 1rem; }
+.content { padding: 1rem; overflow: hidden; touch-action: pan-y; }
 .day-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .day-badge { background: #2e86ab; color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; white-space: nowrap; }
 .section-label { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin: 14px 0 8px; }
@@ -239,6 +240,12 @@ body.dark .expense-modal-overlay { background:rgba(0,0,0,.65); }
 body.dark .expense-modal-saving { background:rgba(17,24,39,.85); color:#60a5fa; }
 body.dark .expense-deleting-overlay { background:rgba(17,24,39,.85); color:#60a5fa; }
 
+/* ===== Tab slide animation ===== */
+@keyframes tabSlideRight { from { transform:translateX(60px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+@keyframes tabSlideLeft  { from { transform:translateX(-60px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+.tab-slide-right { animation: tabSlideRight 0.32s cubic-bezier(.25,.46,.45,.94) both; }
+.tab-slide-left  { animation: tabSlideLeft  0.32s cubic-bezier(.25,.46,.45,.94) both; }
+
 /* ===== Settings Icon Grid ===== */
 .icon-option { display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; }
 .icon-option img { width:56px; height:56px; border-radius:12px; border:2px solid transparent; object-fit:cover; }
@@ -255,6 +262,7 @@ body.dark .expense-deleting-overlay { background:rgba(17,24,39,.85); color:#60a5
   </div>
 
   <div class="tabs" id="tab-container">
+    <div class="tab-indicator" id="tab-indicator"></div>
     <!-- KML tabs injected here -->
     <div class="tab" onclick="showExpenseTab(this)">💰 記帳</div>
     <div class="tab" onclick="showSettingsTab(this)">⚙️ 設定</div>
@@ -719,17 +727,10 @@ function loadDayMap(dayId) {
 
 function showDay(id, el) {
   var elemId = id.replace(/\s/g, '');
-  document.querySelectorAll('.kml-day-section').forEach(function(d) { d.classList.add('hidden'); });
-
-  ['about', 'expense-tab', 'settings-tab'].forEach(function(d) {
-    var e = document.getElementById(d);
-    if (e) e.classList.add('hidden');
-  });
+  hideAllSections();
   var target = document.getElementById(elemId) || document.getElementById(id);
   if (target) target.classList.remove('hidden');
-
-  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-  if (el) el.classList.add('active');
+  activateTab(el, target);
   var mapFixed = document.querySelector('.map-fixed');
   if (dayConfig[id]) {
     mapFixed.style.display = 'block';
@@ -805,28 +806,64 @@ window.addEventListener('load', function() {
   initFromKML();
   initExpensePayer();
   initSettings();
+  var activeTab = document.querySelector('.tab.active');
+  if (activeTab) moveTabIndicator(activeTab, true);
 });
 
 
 
-// ===== EXPENSE TAB =====
-function showExpenseTab(el) {
+function hideAllSections() {
   document.querySelectorAll('.kml-day-section').forEach(function(d) { d.classList.add('hidden'); });
-  ['about', 'settings-tab'].forEach(function(d) {
-    var e = document.getElementById(d);
+  ['about', 'expense-tab', 'settings-tab'].forEach(function(id) {
+    var e = document.getElementById(id);
     if (e) e.classList.add('hidden');
   });
+}
 
+function activateTab(el, section) {
+  var dir = getTabDirection(el);
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  if (el) {
+    el.classList.add('active');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    moveTabIndicator(el);
+  }
+  animateSection(section, dir);
+}
+
+function moveTabIndicator(el, instant) {
+  var indicator = document.getElementById('tab-indicator');
+  if (!indicator || !el) return;
+  if (instant) indicator.style.transition = 'none';
+  indicator.style.left   = el.offsetLeft + 'px';
+  indicator.style.width  = el.offsetWidth + 'px';
+  indicator.style.top    = el.offsetTop  + 'px';
+  indicator.style.height = el.offsetHeight + 'px';
+  if (instant) requestAnimationFrame(function() { indicator.style.transition = ''; });
+}
+
+function getTabDirection(el) {
+  var tabs = Array.from(document.querySelectorAll('.tab'));
+  var newIdx = el ? tabs.indexOf(el) : -1;
+  var curEl = document.querySelector('.tab.active');
+  var curIdx = curEl ? tabs.indexOf(curEl) : -1;
+  return newIdx >= curIdx ? 'right' : 'left';
+}
+function animateSection(section, dir) {
+  if (!section) return;
+  section.classList.remove('tab-slide-right', 'tab-slide-left');
+  void section.offsetWidth;
+  section.classList.add(dir === 'right' ? 'tab-slide-right' : 'tab-slide-left');
+}
+
+// ===== EXPENSE TAB =====
+function showExpenseTab(el) {
+  hideAllSections();
   var expense = document.getElementById('expense-tab');
   if (expense) expense.classList.remove('hidden');
-
-  // 記帳頁不顯示地圖，避免地圖殘留在記帳內容上方
   var mapFixed = document.querySelector('.map-fixed');
   if (mapFixed) mapFixed.style.display = 'none';
-
-  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-  if (el) el.classList.add('active');
-
+  activateTab(el, expense);
   loadExpenses();
 }
 
@@ -1141,17 +1178,12 @@ var GITHUB_ICON_API = 'https://api.github.com/repos/lino447/BusanHTML/contents/i
 var selectedIcon = localStorage.getItem('selectedIcon') || 'miffy.png';
 
 function showSettingsTab(el) {
-  document.querySelectorAll('.kml-day-section').forEach(function(d) { d.classList.add('hidden'); });
-  ['about', 'expense-tab'].forEach(function(d) {
-    var e = document.getElementById(d);
-    if (e) e.classList.add('hidden');
-  });
-  var mapFixed = document.querySelector('.map-fixed');
-  if (mapFixed) mapFixed.style.display = 'none';
+  hideAllSections();
   var tab = document.getElementById('settings-tab');
   if (tab) tab.classList.remove('hidden');
-  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-  if (el) el.classList.add('active');
+  var mapFixed = document.querySelector('.map-fixed');
+  if (mapFixed) mapFixed.style.display = 'none';
+  activateTab(el, tab);
   loadIconList();
 }
 
@@ -1223,6 +1255,45 @@ function initSettings() {
     setDarkMode(true);
   }
 }
+
+(function() {
+  var content = document.querySelector('.app');
+  if (!content) return;
+  var startX = 0, startY = 0, dragging = false, isHoriz = false;
+
+  content.addEventListener('pointerdown', function(e) {
+    if (e.target.closest('button, input, select, a, .leaflet-container, .expense-modal')) return;
+    startX = e.clientX; startY = e.clientY;
+    dragging = true; isHoriz = false;
+    document.body.style.userSelect = 'none';
+  });
+
+  content.addEventListener('pointermove', function(e) {
+    if (!dragging || isHoriz) return;
+    var dx = Math.abs(e.clientX - startX);
+    var dy = Math.abs(e.clientY - startY);
+    if (dx < 8 && dy < 8) return;
+    if (dx > dy) { isHoriz = true; } else { dragging = false; }
+  }, { passive: true });
+
+  function endSwipe(e) {
+    document.body.style.userSelect = '';
+    if (!dragging) return;
+    dragging = false;
+    if (!isHoriz) { isHoriz = false; return; }
+    isHoriz = false;
+    var dx = (e.clientX || startX) - startX;
+    if (Math.abs(dx) < 45) return;
+    var allTabs = Array.from(document.querySelectorAll('.tab'));
+    var cur = document.querySelector('.tab.active');
+    var idx = cur ? allTabs.indexOf(cur) : 0;
+    var next = allTabs[dx < 0 ? idx + 1 : idx - 1];
+    if (next) next.click();
+  }
+
+  content.addEventListener('pointerup', endSwipe);
+  content.addEventListener('pointercancel', function() { dragging = false; isHoriz = false; document.body.style.userSelect = ''; });
+})();
 </script>
 </body>
 </html>
